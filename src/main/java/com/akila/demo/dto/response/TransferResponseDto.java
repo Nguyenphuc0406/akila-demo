@@ -15,4 +15,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransferResponseDto {
 
+    private String message;
 }

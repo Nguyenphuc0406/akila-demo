@@ -1,18 +1,16 @@
 package com.akila.demo.domain;
 
-import com.akila.demo.domain.Currency.ColumnName;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,10 +23,13 @@ import lombok.Setter;
 @Builder
 @Table(name = "wallet")
 public class Wallet {
-    @Id
-    @Column(unique = true, nullable = false)
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+
+    /**
+     * The id is pair of account_id and currency_id. To ensure that one account has only one wallet
+     * with a currency.
+     */
+    @EmbeddedId
+    private WalletId id;
 
     @Column(name = "name")
     private String name;
@@ -36,11 +37,21 @@ public class Wallet {
     @Column(name = "total_amount")
     private BigDecimal totalAmount;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @Column(name = "wallet_code", unique = true, nullable = false)
+    private UUID walletCode;
 
-    @OneToOne(targetEntity = Currency.class)
-    @JoinColumn(name = "currency_id", referencedColumnName = ColumnName.ID)
-    private Currency currency;
+    @Embeddable
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WalletId implements Serializable {
+
+        private static final long serialVersionUID = -277057943220762740L;
+
+        @Column(name = "account_id", nullable = false)
+        private UUID accountId;
+
+        @Column(name = "currency_id", nullable = false)
+        private UUID currencyId;
+    }
 }
